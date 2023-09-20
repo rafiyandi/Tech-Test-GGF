@@ -9,19 +9,10 @@ sealed class UsersEvent extends Equatable {
 
 class UserFetchDataUsers extends UsersEvent {}
 
-class UserAddDataUsers extends UsersEvent {
+class UserAddAndUpdateDataUsers extends UsersEvent {
   final UserModel request;
 
-  const UserAddDataUsers({required this.request});
-
-  @override
-  List<Object> get props => [request];
-}
-
-class UserUpdateDataUser extends UsersEvent {
-  final UserModel request;
-
-  const UserUpdateDataUser({required this.request});
+  const UserAddAndUpdateDataUsers({required this.request});
 
   @override
   List<Object> get props => [request];

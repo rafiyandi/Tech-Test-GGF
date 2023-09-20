@@ -71,15 +71,18 @@ class UserPage extends StatelessWidget {
                             )),
                         IconButton(
                             onPressed: () {
+                              updateController.text =
+                                  state.users[index].name.toString();
                               customPopup(
                                   nameController: updateController,
                                   context: context,
                                   onPressed: () {
                                     context.read<UsersBloc>().add(
-                                        UserUpdateDataUser(
+                                        UserAddAndUpdateDataUsers(
                                             request: UserModel(
                                                 name: updateController.text,
-                                                id: state.users[index].id)));
+                                                id: state.users[index].id ??
+                                                    '-1')));
                                     Navigator.pop(context);
                                   },
                                   title: "Update Data User");
@@ -110,7 +113,7 @@ class UserPage extends StatelessWidget {
               nameController: nameController,
               context: context,
               onPressed: () {
-                context.read<UsersBloc>().add(UserAddDataUsers(
+                context.read<UsersBloc>().add(UserAddAndUpdateDataUsers(
                     request: UserModel(name: nameController.text)));
 
                 Navigator.pop(context);

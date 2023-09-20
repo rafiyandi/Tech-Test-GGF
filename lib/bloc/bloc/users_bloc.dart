@@ -11,8 +11,7 @@ part 'users_state.dart';
 class UsersBloc extends Bloc<UsersEvent, UsersState> {
   UsersBloc() : super(UsersInitial()) {
     on<UserFetchDataUsers>(_fetchDataUser);
-    on<UserAddDataUsers>(_addDataUser);
-    on<UserUpdateDataUser>(_updateDataUser);
+    on<UserAddAndUpdateDataUsers>(_addDataUser);
     on<UserDeleteDataUser>(_deleteDataUser);
   }
 
@@ -25,27 +24,24 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
   }
 
   FutureOr<void> _addDataUser(event, emit) async {
-    event as UserAddDataUsers;
-    final result = await UserService().addDataUser(request: event.request);
+    event as UserAddAndUpdateDataUsers;
+    var tempList = List<UserModel>.from((state as UsersSuccess).users);
+    int index =
+        tempList.indexWhere((element) => element.id == event.request.id);
+    if (index == -1) {
+      final result = await UserService().addDataUser(request: event.request);
+      result.fold((l) => emit(UsersFailed(l)), (r) {
+        tempList.add(r);
+        return emit(UsersSuccess(users: tempList));
+      });
+    } else {
+      final result = await UserService().updateDataUser(request: event.request);
 
-    result.fold((l) => emit(UsersFailed(l)), (r) {
-      var tempList = List<UserModel>.from((state as UsersSuccess).users);
-      tempList.add(r);
-      emit(UsersSuccess(users: tempList));
-    });
-  }
-
-  FutureOr<void> _updateDataUser(event, emit) async {
-    event as UserUpdateDataUser;
-    final result = await UserService().updateDataUser(request: event.request);
-
-    result.fold((l) => emit(UsersFailed(l)), (r) {
-      var tempList = List<UserModel>.from((state as UsersSuccess).users);
-      int index =
-          tempList.indexWhere((element) => element.id == event.request.id);
-      tempList[index] = r;
-      emit(UsersSuccess(users: tempList));
-    });
+      result.fold((l) => emit(UsersFailed(l)), (r) {
+        tempList[index] = r;
+        emit(UsersSuccess(users: tempList));
+      });
+    }
   }
 
   FutureOr<void> _deleteDataUser(event, emit) async {
